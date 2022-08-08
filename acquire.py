@@ -18,7 +18,7 @@ def get_titanic_data():
     '''
     filename = 'titanic.csv'
     if os.path.isfile(filename):
-        return pd.read_csv(filename)
+        return pd.read_csv(filename).iloc[:,1:]
     else:
         df = pd.read_sql('''SELECT 
                             * FROM passengers;''', conn('titanic_db'))
@@ -33,7 +33,7 @@ def get_iris_data():
     '''
     filename = 'iris.csv'
     if os.path.isfile(filename):
-        return pd.read_csv(filename)
+        return pd.read_csv(filename).iloc[:,1:]
     else:
         df = pd.read_sql('''SELECT * 
                             FROM measurements 
@@ -49,7 +49,7 @@ def get_telco_data():
     the CodeUp MySQL database and return it in a DataFrame.    '''
     filename = 'telco.csv'
     if os.path.isfile(filename):
-        return pd.read_csv(filename)
+        return pd.read_csv(filename).iloc[:,1:]
     else:
         query = '''
             SELECT * FROM customers
