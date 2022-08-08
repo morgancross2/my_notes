@@ -8,7 +8,7 @@ from sklearn.impute import SimpleImputer
 
 def prep_iris(df):
     '''
-    This function accepts the iris df and preps it. Returns train, validate, and test datasets. 
+    This function accepts the iris df and preps it.
     '''
     df = df.drop(columns=['species_id', 'measurement_id'])
     df = df.rename(columns={'species_name':'species'})
@@ -16,46 +16,26 @@ def prep_iris(df):
     df = pd.concat([df, dummies], axis=1)
     df = df.drop(columns='species')
     
-    # no target to stratify 
-    train, test = train_test_split(df, test_size = .2, random_state=123)
-    train, validate = train_test_split(train, test_size = .25, random_state=123)
-    return train, validate, test
+    return df
 
 
 def prep_titanic(df):
     '''
-    This function accepts the titanic df and preps it. Returns train, validate, and test datasets. 
+    This function accepts the titanic df and preps it. 
     '''
     df = df.drop(columns='embarked')
     df = df.drop(columns='class')
     df = df.drop(columns=['age','deck'])
-    dummy_df = pd.get_dummies(df[['sex']], drop_first=True)
+    dummy_df = pd.get_dummies(df[['sex', 'embark_town']], drop_first=True)
     df = pd.concat([df, dummy_df], axis=1)
-    df = df.drop(columns=['sex'])
+    df = df.drop(columns=['sex', 'embark_town'])
     
-    # split data
-    train, val, test = split_data(df, 'survived')
-
-    # account for embark_town nulls using most frequent in train set
-    train, val, test = impute_mode(train, val, test, 'embark_town')
-    
-    # get_dummies for embark town columns
-    dummy_df = pd.get_dummies(train[['embark_town']])
-    train = pd.concat([train, dummy_df], axis=1)
-    train = train.drop(columns=['embark_town'])
-    dummy_df = pd.get_dummies(val[['embark_town']])
-    val = pd.concat([val, dummy_df], axis=1)
-    val = val.drop(columns=['embark_town'])
-    dummy_df = pd.get_dummies(test[['embark_town']])
-    test = pd.concat([test, dummy_df], axis=1)
-    test = test.drop(columns=['embark_town'])
-    
-    return train, val, test
+    return df
 
 
 def prep_telco(telco):
     '''
-    This function accepts the telco df and preps it. Returns train, validate, and test datasets. 
+    This function accepts the telco df and preps it.
     '''
     # fix monthly charges from string to floats
     telco.total_charges = telco.total_charges.str.replace(' ','0')
@@ -88,17 +68,16 @@ def prep_telco(telco):
     telco.streaming_tv = telco.streaming_tv.str.replace('No internet service', '0').str.replace('Yes', '1').str.replace('No', '0').astype('int')
     telco.streaming_movies = telco.streaming_movies.str.replace('No internet service', '0').str.replace('Yes', '2').str.replace('No', '0').astype('int')
     
-    return split_data(telco, 'churn_Yes')
+    return telco
 
 
-def split_data(df, target):
+def split_data(df):
     '''
-    Takes in a dataframe and target column (as a string) and returns train, validate, 
-    and test subset dataframes with the .2/.8 and .25/.75 splits to create a final
-    .2/.2/.6 split between datasets
+    Takes in a dataframe and returns train, validate, and test subset dataframes 
+    with the .2/.8 and .25/.75 splits to create a final .2/.2/.6 split between datasets
     '''
-    train, test = train_test_split(df, test_size = .2, random_state=123, stratify=df[target])
-    train, validate = train_test_split(train, test_size = .25, random_state=123, stratify=train[target])
+    train, test = train_test_split(df, test_size = .2, random_state=123)
+    train, validate = train_test_split(train, test_size = .25, random_state=123)
     
     return train, validate, test
 
