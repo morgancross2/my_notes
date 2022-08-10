@@ -14,7 +14,6 @@ def prep_iris(df):
     df = df.rename(columns={'species_name':'species'})
     dummies = pd.get_dummies(df.species)
     df = pd.concat([df, dummies], axis=1)
-    df = df.drop(columns='species')
     
     return df
 
@@ -23,9 +22,7 @@ def prep_titanic(df):
     '''
     This function accepts the titanic df and preps it. 
     '''
-    df = df.drop(columns='embarked')
-    df = df.drop(columns='class')
-    df = df.drop(columns=['age','deck'])
+    df = df.drop(columns=['age','deck','embarked','class'])
     dummy_df = pd.get_dummies(df[['sex', 'embark_town']], drop_first=True)
     df = pd.concat([df, dummy_df], axis=1)
     df = df.drop(columns=['sex', 'embark_town'])
@@ -71,13 +68,13 @@ def prep_telco(telco):
     return telco
 
 
-def split_data(df):
+def split_data(df, target):
     '''
-    Takes in a dataframe and returns train, validate, and test subset dataframes 
-    with the .2/.8 and .25/.75 splits to create a final .2/.2/.6 split between datasets
+    Takes in a dataframe and target (as a string). Returns train, validate, and test subset 
+    dataframes with the .2/.8 and .25/.75 splits to create a final .2/.2/.6 split between datasets
     '''
-    train, test = train_test_split(df, test_size = .2, random_state=123)
-    train, validate = train_test_split(train, test_size = .25, random_state=123)
+    train, test = train_test_split(df, test_size = .2, random_state=123, stratify=df[target])
+    train, validate = train_test_split(train, test_size = .25, random_state=123, stratify=train[target])
     
     return train, validate, test
 
